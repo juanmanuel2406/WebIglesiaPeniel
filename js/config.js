@@ -8,14 +8,6 @@
 const CONFIG = {
   nombre: "Iglesia Peniel Buenos Aires",
 
-  /* ------- Video de fondo del hero -------
-     id: código de YouTube. En celulares (pantallas < 769px) se muestra
-     foto fija (img/hero.jpg) para que cargue más rápido. */
-  videoFondo: {
-    id: "o_G2Mm68pP8",
-    activoMovil: false
-  },
-
   /* ------- Teléfono y WhatsApp del templo ------- */
   telefono: {
     display: "(011) 4683-3841",

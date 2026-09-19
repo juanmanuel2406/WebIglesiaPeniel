@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const horariosGrid = $('#horariosGrid');
   if (horariosGrid) {
     horariosGrid.innerHTML = L.horarios.map((h, i) => `
-      <article class="horario-card reveal${i === 0 ? ' is-visible' : ''}" ${i > 0 ? `style="--d:${i * 0.1}s"` : ''}>
+      <article class="horario-card reveal${i === 0 ? ' is-visible' : ''}">
         <span class="horario-day">${h.dia}</span>
         <h3 class="horario-name">${h.nombre}</h3>
         <div class="horario-time">${h.hora} hs</div>
@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pin = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z"/></svg>';
     const clock = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>';
     sedesGrid.innerHTML = L.sedes.map((s, i) => `
-      <article class="sede-card reveal${i === 0 ? ' is-visible' : ''}" ${i > 0 ? `style="--d:${i * 0.12}s"` : ''}>
+      <article class="sede-card reveal${i === 0 ? ' is-visible' : ''}">
         <span class="sede-tipo">${s.tipo}</span>
         <h3 class="sede-name">${s.nombre}</h3>
         <p class="sede-dir">${pin}<span>${s.direccion}</span></p>
@@ -42,8 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ---------- 3. Valores / ADN ---------- */
   const valoresGrid = $('#valoresGrid');
   if (valoresGrid) {
-    valoresGrid.innerHTML = L.valores.map((v, i) => `
-      <div class="valor-chip reveal" ${i > 0 ? `style="--d:${(i % 3) * 0.08}s"` : ''}>
+    valoresGrid.innerHTML = L.valores.map(v => `
+      <div class="valor-chip reveal">
         <span class="valor-inicial">${v.inicial}</span>
         <p>${v.texto}</p>
       </div>
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const pasosGrid = $('#pasosGrid');
   if (pasosGrid) {
     pasosGrid.innerHTML = L.pasos.map((p, i) => `
-      <article class="paso-card reveal" ${i > 0 ? `style="--d:${i * 0.12}s"` : ''}>
+      <article class="paso-card reveal${i === 0 ? ' is-visible' : ''}">
         <span class="paso-inicial">${p.inicial}</span>
         <h3>${p.titulo}</h3>
         <p>${p.texto}</p>
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const pastoresGrid = $('#pastoresGrid');
   if (pastoresGrid) {
     pastoresGrid.innerHTML = L.pastores.map((p, i) => `
-      <article class="pastor-card reveal" ${i > 0 ? `style="--d:${i * 0.15}s"` : ''}>
+      <article class="pastor-card reveal${i === 0 ? ' is-visible' : ''}">
         <div class="pastor-photo">
           <img src="${p.foto}" alt="${p.nombre}" loading="lazy">
         </div>
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <span class="video-play" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
       `;
       return `
-        <article class="video-card reveal" ${i > 0 ? `style="--d:${i * 0.12}s"` : ''}>
+        <article class="video-card reveal${i === 0 ? ' is-visible' : ''}">
           <a class="video-cover" href="${url}" target="_blank" rel="noopener" aria-label="Ver: ${v.titulo}">
             ${cover}
           </a>
@@ -135,47 +135,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  /* ---------- 9. Hero: video de fondo (solo desktop) ---------- */
-  const heroVideo = $('#heroVideo');
-  const vf = L.videoFondo;
-  const desktop = window.matchMedia('(min-width: 769px)').matches;
-  if (heroVideo && vf && vf.id && (desktop || vf.activoMovil)) {
-    const iframe = document.createElement('iframe');
-    iframe.src = `https://www.youtube.com/embed/${vf.id}?autoplay=1&mute=1&loop=1&playlist=${vf.id}&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1`;
-    iframe.title = 'Video de fondo: predicación reciente de la iglesia';
-    iframe.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
-    iframe.tabIndex = -1;
-    iframe.setAttribute('aria-hidden', 'true');
-    iframe.addEventListener('load', () => heroVideo.classList.add('ready'));
-    heroVideo.appendChild(iframe);
-  }
+  /* ---------- 9. Años de servicio (valor fijo, sin animación) ---------- */
+  const statYears = $('#statYears');
+  if (statYears) statYears.textContent = new Date().getFullYear() - 1969;
 
-  /* ---------- 10. Contadores animados ---------- */
-  const animateCounter = (el) => {
-    const hasFloat = el.dataset.counter === 'float';
-    const decimals = hasFloat ? +(el.dataset.decimals || 1) : 0;
-    let target = +(el.dataset.to || 0);
-    if (el.dataset.yearFrom) target = new Date().getFullYear() - +el.dataset.yearFrom;
-    const dur = 1600;
-    const start = performance.now();
-    const tick = (now) => {
-      const t = Math.min((now - start) / dur, 1);
-      const eased = 1 - Math.pow(1 - t, 3);
-      el.textContent = (target * eased).toFixed(decimals).replace('.', ',');
-      if (t < 1) requestAnimationFrame(tick);
-      else el.textContent = (hasFloat ? target.toFixed(decimals) : Math.round(target)).toString().replace('.', ',');
-    };
-    requestAnimationFrame(tick);
-  };
-
-  const counterObs = new IntersectionObserver((entries, obs) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) { animateCounter(e.target); obs.unobserve(e.target); }
-    });
-  }, { threshold: .6 });
-  $$('[data-counter]').forEach(el => counterObs.observe(el));
-
-  /* ---------- 11. Revelar secciones al hacer scroll ---------- */
+  /* ---------- 10. Revelar secciones al hacer scroll (fade suave) ---------- */
   const revealObs = new IntersectionObserver((entries, obs) => {
     entries.forEach(e => {
       if (e.isIntersecting) { e.target.classList.add('is-visible'); obs.unobserve(e.target); }
@@ -183,13 +147,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }, { threshold: .12, rootMargin: '0px 0px -40px 0px' });
   $$('.reveal').forEach(el => revealObs.observe(el));
 
-  /* ---------- 12. Navbar con scroll ---------- */
+  /* ---------- 11. Navbar con scroll ---------- */
   const nav = $('#nav');
   const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 40);
   onScroll();
   window.addEventListener('scroll', onScroll, { passive: true });
 
-  /* ---------- 13. Menú móvil ---------- */
+  /* ---------- 12. Menú móvil ---------- */
   const navToggle = $('#navToggle');
   const navLinks = $('#navLinks');
   const closeMenu = () => {
@@ -204,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   $$('.nav-links a', navLinks).forEach(a => a.addEventListener('click', closeMenu));
 
-  /* ---------- 14. Formulario de petición de oración → WhatsApp ---------- */
+  /* ---------- 13. Formulario de petición de oración → WhatsApp ---------- */
   const form = $('#prayerForm');
   if (form) {
     form.addEventListener('submit', (e) => {
@@ -226,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* ---------- 15. Año en el footer ---------- */
+  /* ---------- 14. Año en el footer ---------- */
   const year = $('#year');
   if (year) year.textContent = new Date().getFullYear();
 });
